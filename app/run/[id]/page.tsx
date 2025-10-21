@@ -14,7 +14,7 @@ import { AVAILABLE_TOOLS } from '@/lib/types';
 import ReactMarkdown from 'react-markdown';
 import { parse } from 'partial-json';
 import { cn } from '@/lib/utils';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Share2 } from 'lucide-react';
 
 export default function RunAgentPage() {
   const params = useParams();
@@ -111,6 +111,19 @@ export default function RunAgentPage() {
     setResult('');
   };
 
+  const handleShare = async () => {
+    if (agent?.slug) {
+      const shareUrl = `${window.location.origin}/share/${agent.slug}`;
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Share link copied to clipboard!');
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        alert(`Share URL: ${shareUrl}`);
+      }
+    }
+  };
+
   if (!agent) {
     return null;
   }
@@ -126,9 +139,17 @@ export default function RunAgentPage() {
                 <CardTitle className="mb-1 text-xl">{agent.title}</CardTitle>
                 <p className="text-muted-foreground text-sm">{agent.description}</p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => router.push('/')}>
-                Back
-              </Button>
+              <div className="flex gap-2">
+                {agent.slug && (
+                  <Button variant="ghost" size="sm" onClick={handleShare}>
+                    <Share2 className="mr-1 h-4 w-4" />
+                    Share
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={() => router.push('/')}>
+                  Back
+                </Button>
+              </div>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {agent.tools.map((tool) => (

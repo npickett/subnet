@@ -26,6 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       description: agent.description,
       prompt: agent.prompt,
       tools: (agent.tools as string[]) || [],
+      slug: agent.slug || undefined,
     };
 
     return NextResponse.json(mappedAgent);

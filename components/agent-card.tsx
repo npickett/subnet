@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { AVAILABLE_TOOLS } from '@/lib/types';
 
@@ -51,6 +51,22 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
     }
   };
 
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (agent.slug) {
+      const shareUrl = `${window.location.origin}/share/${agent.slug}`;
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Share link copied to clipboard!');
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        alert(`Share URL: ${shareUrl}`);
+      }
+    }
+  };
+
   return (
     <Card className="relative">
       <CardHeader>
@@ -59,15 +75,28 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
             <CardTitle className="text-xl">{agent.title}</CardTitle>
             <CardDescription className="line-clamp-2">{agent.description}</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-1 shrink-0">
+            {agent.slug && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8"
+                onClick={handleShare}
+                title="Share agent"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

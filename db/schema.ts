@@ -6,4 +6,5 @@ export const agentsTable = pgTable('agents', {
   description: text().notNull(),
   prompt: text().notNull(),
   tools: jsonb(),
+  slug: text(),
 });

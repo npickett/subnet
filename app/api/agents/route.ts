@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { agentsTable } from '@/db/schema';
 import { desc } from 'drizzle-orm';
+import slugify from 'slugify';
 
 // GET /api/agents - Get first 50 agents
 export async function GET() {
@@ -15,6 +16,7 @@ export async function GET() {
       description: agent.description,
       prompt: agent.prompt,
       tools: (agent.tools as string[]) || [],
+      slug: agent.slug || undefined,
     }));
 
     return NextResponse.json(mappedAgents);
@@ -34,6 +36,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const slug = slugify(title, { lower: true, strict: true });
+
     const [newAgent] = await db
       .insert(agentsTable)
       .values({
@@ -41,6 +45,7 @@ export async function POST(request: NextRequest) {
         description,
         prompt,
         tools: tools || [],
+        slug,
       })
       .returning();
 
@@ -51,6 +56,7 @@ export async function POST(request: NextRequest) {
       description: newAgent.description,
       prompt: newAgent.prompt,
       tools: (newAgent.tools as string[]) || [],
+      slug: newAgent.slug || undefined,
     };
 
     return NextResponse.json(mappedAgent, { status: 201 });

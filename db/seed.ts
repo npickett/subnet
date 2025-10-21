@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { db } from './index';
 import { agentsTable } from './schema';
+import slugify from 'slugify';
 
 const sampleAgents = [
   {
@@ -21,6 +22,7 @@ Focus on stories that are surprising, novel, or not widely reported. Avoid the m
 
 Return a list of the top 2 most unexpected MIT news stories from the past week, with links and short explanations.`,
     tools: ['parallel_search'],
+    slug: slugify('MIT News Assistant', { lower: true, strict: true }),
   },
   {
     name: 'Positive News Haiku Writer',
@@ -28,6 +30,7 @@ Return a list of the top 2 most unexpected MIT news stories from the past week, 
     prompt:
       'You are a haiku writer. Use your search tool to find a piece of positive news from today, then write a simple haiku about it.',
     tools: ['parallel_search'],
+    slug: slugify('Positive News Haiku Writer', { lower: true, strict: true }),
   },
   {
     name: 'Hot AI News Analyzer',
@@ -44,6 +47,7 @@ Return:
 - A few key links to read more
 - A section of "Similar Pages" found using exa_find_similar, with links and short descriptions.`,
     tools: ['exa_search', 'exa_crawl', 'exa_find_similar'],
+    slug: slugify('Hot AI News Analyzer', { lower: true, strict: true }),
   },
 ];
 

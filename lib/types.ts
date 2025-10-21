@@ -4,6 +4,7 @@ export interface Agent {
   description: string;
   prompt: string;
   tools: string[];
+  slug?: string;
 }
 
 export const AVAILABLE_TOOLS = [
