@@ -17,6 +17,7 @@ export async function GET() {
       prompt: agent.prompt,
       tools: (agent.tools as string[]) || [],
       slug: agent.slug || undefined,
+      forkedFrom: agent.forked_from?.toString(),
     }));
 
     return NextResponse.json(mappedAgents);
@@ -30,7 +31,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, description, prompt, tools } = body;
+    const { title, description, prompt, tools, forkedFrom } = body;
 
     if (!title || !description || !prompt) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
         prompt,
         tools: tools || [],
         slug,
+        forked_from: forkedFrom ? parseInt(forkedFrom) : null,
       })
       .returning();
 
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
       prompt: newAgent.prompt,
       tools: (newAgent.tools as string[]) || [],
       slug: newAgent.slug || undefined,
+      forkedFrom: newAgent.forked_from?.toString(),
     };
 
     return NextResponse.json(mappedAgent, { status: 201 });

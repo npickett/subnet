@@ -5,6 +5,7 @@ export interface Agent {
   prompt: string;
   tools: string[];
   slug?: string;
+  forkedFrom?: string;
 }
 
 export const AVAILABLE_TOOLS = [

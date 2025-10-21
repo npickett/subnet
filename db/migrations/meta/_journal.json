@@ -15,6 +15,13 @@
       "when": 1760994369035,
       "tag": "0001_smiling_madame_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761086177309,
+      "tag": "0002_left_veda",
+      "breakpoints": true
     }
   ]
 }

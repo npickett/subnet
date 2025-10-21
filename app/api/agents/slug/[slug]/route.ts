@@ -29,6 +29,7 @@ export async function GET(
       prompt: agent.prompt,
       tools: (agent.tools as string[]) || [],
       slug: agent.slug || undefined,
+      forkedFrom: agent.forked_from?.toString(),
     };
 
     return NextResponse.json(mappedAgent);

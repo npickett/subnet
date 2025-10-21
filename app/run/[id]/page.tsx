@@ -14,7 +14,7 @@ import { AVAILABLE_TOOLS } from '@/lib/types';
 import ReactMarkdown from 'react-markdown';
 import { parse } from 'partial-json';
 import { cn } from '@/lib/utils';
-import { LoaderCircle, Share2 } from 'lucide-react';
+import { LoaderCircle, Share2, GitFork } from 'lucide-react';
 
 export default function RunAgentPage() {
   const params = useParams();
@@ -124,6 +124,12 @@ export default function RunAgentPage() {
     }
   };
 
+  const handleFork = () => {
+    if (agent) {
+      router.push(`/create?fork=${agent.id}`);
+    }
+  };
+
   if (!agent) {
     return null;
   }
@@ -140,6 +146,10 @@ export default function RunAgentPage() {
                 <p className="text-muted-foreground text-sm">{agent.description}</p>
               </div>
               <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={handleFork}>
+                  <GitFork className="mr-1 h-4 w-4" />
+                  Fork
+                </Button>
                 {agent.slug && (
                   <Button variant="ghost" size="sm" onClick={handleShare}>
                     <Share2 className="mr-1 h-4 w-4" />

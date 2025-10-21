@@ -2,8 +2,8 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +16,31 @@ import { Separator } from '@/components/ui/separator';
 
 export default function CreatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [prompt, setPrompt] = useState('');
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [forkedFrom, setForkedFrom] = useState<string | null>(null);
+
+  useEffect(() => {
+    const forkId = searchParams.get('fork');
+    if (forkId) {
+      // Fetch the agent to fork
+      fetch(`/api/agents/${forkId}`)
+        .then((res) => res.json())
+        .then((agent) => {
+          setTitle(`${agent.title} (Fork)`);
+          setDescription(agent.description);
+          setPrompt(agent.prompt);
+          setSelectedTools(agent.tools || []);
+          setForkedFrom(agent.id);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent to fork:', error);
+        });
+    }
+  }, [searchParams]);
 
   const handleToolToggle = (tool: string) => {
     setSelectedTools((prev) =>
@@ -35,6 +56,7 @@ export default function CreatePage() {
       description,
       prompt,
       tools: selectedTools,
+      forkedFrom,
     };
 
     try {
@@ -62,9 +84,13 @@ export default function CreatePage() {
       <Header />
       <main className="container mx-auto max-w-3xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-foreground mb-2 text-4xl font-bold">Create New Agent</h1>
+          <h1 className="text-foreground mb-2 text-4xl font-bold">
+            {forkedFrom ? 'Fork Agent' : 'Create New Agent'}
+          </h1>
           <p className="text-muted-foreground">
-            Configure your Subconscious agent with instructions and search tools
+            {forkedFrom
+              ? 'Customize this forked agent with your own instructions and tools'
+              : 'Configure your Subconscious agent with instructions and search tools'}
           </p>
         </div>
 

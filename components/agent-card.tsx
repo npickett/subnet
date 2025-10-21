@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Agent } from '@/lib/types';
 import {
   Card,
@@ -12,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Share2 } from 'lucide-react';
+import { Trash2, Share2, GitFork } from 'lucide-react';
 import { useState } from 'react';
 import { AVAILABLE_TOOLS } from '@/lib/types';
 
@@ -22,6 +23,7 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ agent, onDelete }: AgentCardProps) {
+  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -67,6 +69,12 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
     }
   };
 
+  const handleFork = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/create?fork=${agent.id}`);
+  };
+
   return (
     <Card className="relative">
       <CardHeader>
@@ -76,6 +84,15 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
             <CardDescription className="line-clamp-2">{agent.description}</CardDescription>
           </div>
           <div className="flex gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8"
+              onClick={handleFork}
+              title="Fork agent"
+            >
+              <GitFork className="h-4 w-4" />
+            </Button>
             {agent.slug && (
               <Button
                 variant="ghost"
