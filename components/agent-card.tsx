@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Share2, GitFork } from 'lucide-react';
+import { Trash2, Share2, GitFork, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { AVAILABLE_TOOLS } from '@/lib/types';
 
@@ -75,6 +75,12 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
     router.push(`/create?fork=${agent.id}`);
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/edit/${agent.id}`);
+  };
+
   return (
     <Card className="relative">
       <CardHeader>
@@ -84,6 +90,15 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
             <CardDescription className="line-clamp-2">{agent.description}</CardDescription>
           </div>
           <div className="flex gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8"
+              onClick={handleEdit}
+              title="Edit agent"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
