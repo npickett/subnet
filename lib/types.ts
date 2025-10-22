@@ -6,6 +6,17 @@ export interface Agent {
   tools: string[];
   slug?: string;
   forkedFrom?: string;
+  averageRating?: number;
+  reviewCount?: number;
+}
+
+export interface Review {
+  id: string;
+  agentId: string;
+  authorName: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
 }
 
 export const AVAILABLE_TOOLS = [

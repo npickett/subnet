@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Share2, GitFork, Pencil } from 'lucide-react';
+import { Trash2, Share2, GitFork, Pencil, Star } from 'lucide-react';
 import { useState } from 'react';
 import { AVAILABLE_TOOLS } from '@/lib/types';
 
@@ -82,7 +82,7 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
   };
 
   return (
-    <Card className="relative">
+    <Card className="relative flex flex-col">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
@@ -131,7 +131,22 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3 flex-grow">
+        <div className="h-6">
+          {agent.averageRating !== undefined && agent.reviewCount !== undefined && agent.reviewCount > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span className="font-semibold text-sm">
+                  {agent.averageRating.toFixed(1)}
+                </span>
+              </div>
+              <span className="text-muted-foreground text-xs">
+                ({agent.reviewCount} {agent.reviewCount === 1 ? 'review' : 'reviews'})
+              </span>
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
           <p className="text-muted-foreground text-sm font-medium">Tools:</p>
           <div className="flex flex-wrap gap-2">

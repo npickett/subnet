@@ -14,7 +14,9 @@ import { AVAILABLE_TOOLS } from '@/lib/types';
 import ReactMarkdown from 'react-markdown';
 import { parse } from 'partial-json';
 import { cn } from '@/lib/utils';
-import { LoaderCircle, Share2, GitFork, Pencil } from 'lucide-react';
+import { LoaderCircle, Share2, GitFork, Pencil, Star } from 'lucide-react';
+import { ReviewForm } from '@/components/review-form';
+import { ReviewList } from '@/components/review-list';
 
 export default function RunAgentPage() {
   const params = useParams();
@@ -23,6 +25,7 @@ export default function RunAgentPage() {
   const [result, setResult] = useState<any | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0);
   const reasoningRef = useRef<HTMLPreElement>(null);
 
   const getToolLabel = (toolValue: string) => {
@@ -150,6 +153,19 @@ export default function RunAgentPage() {
               <div className="flex-1">
                 <CardTitle className="mb-1 text-xl">{agent.title}</CardTitle>
                 <p className="text-muted-foreground text-sm">{agent.description}</p>
+                {agent.averageRating !== undefined && agent.reviewCount !== undefined && agent.reviewCount > 0 && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="font-semibold text-sm">
+                        {agent.averageRating.toFixed(1)}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground text-xs">
+                      ({agent.reviewCount} {agent.reviewCount === 1 ? 'review' : 'reviews'})
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" onClick={handleEdit}>
@@ -254,6 +270,27 @@ export default function RunAgentPage() {
             </div>
           </CardContent>
         </Card>
+
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            <h2 className="text-foreground mb-4 text-2xl font-bold">Reviews</h2>
+            <ReviewList agentId={agent.id} refreshTrigger={reviewRefreshTrigger} />
+          </div>
+          <div>
+            <h2 className="text-foreground mb-4 text-2xl font-bold">Leave a Review</h2>
+            <ReviewForm
+              agentId={agent.id}
+              onReviewSubmitted={() => {
+                setReviewRefreshTrigger((prev) => prev + 1);
+                // Refresh agent data to update rating stats
+                fetch(`/api/agents/${agent.id}`)
+                  .then((res) => res.json())
+                  .then((data) => setAgent(data))
+                  .catch((error) => console.error('Error refreshing agent:', error));
+              }}
+            />
+          </div>
+        </div>
       </main>
     </div>
   );

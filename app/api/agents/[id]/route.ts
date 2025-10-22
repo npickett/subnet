@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { agentsTable } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { agentsTable, reviewsTable } from '@/db/schema';
+import { eq, avg, count } from 'drizzle-orm';
 
 // GET /api/agents/[id] - Get a specific agent
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -19,6 +19,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
+    // Fetch rating stats for this agent
+    const [ratingStats] = await db
+      .select({
+        avgRating: avg(reviewsTable.rating),
+        reviewCount: count(reviewsTable.id),
+      })
+      .from(reviewsTable)
+      .where(eq(reviewsTable.agent_id, agentId));
+
     // Map database fields to match Agent interface
     const mappedAgent = {
       id: agent.id.toString(),
@@ -28,6 +37,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       tools: (agent.tools as string[]) || [],
       slug: agent.slug || undefined,
       forkedFrom: agent.forked_from?.toString(),
+      averageRating: ratingStats?.avgRating ? parseFloat(ratingStats.avgRating) : undefined,
+      reviewCount: ratingStats?.reviewCount || 0,
     };
 
     return NextResponse.json(mappedAgent);

@@ -22,6 +22,13 @@
       "when": 1761086177309,
       "tag": "0002_left_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761109241482,
+      "tag": "0003_purple_paladin",
+      "breakpoints": true
     }
   ]
 }

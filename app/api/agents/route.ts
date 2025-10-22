@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { agentsTable } from '@/db/schema';
-import { desc } from 'drizzle-orm';
+import { agentsTable, reviewsTable } from '@/db/schema';
+import { desc, eq, avg, count } from 'drizzle-orm';
 import slugify from 'slugify';
 
 // GET /api/agents - Get first 50 agents
@@ -9,16 +9,43 @@ export async function GET() {
   try {
     const agents = await db.select().from(agentsTable).orderBy(desc(agentsTable.id)).limit(50);
 
+    // Fetch rating stats for all agents
+    const agentIds = agents.map((a) => a.id);
+    const ratingStats = await db
+      .select({
+        agentId: reviewsTable.agent_id,
+        avgRating: avg(reviewsTable.rating),
+        reviewCount: count(reviewsTable.id),
+      })
+      .from(reviewsTable)
+      .where(eq(reviewsTable.agent_id, reviewsTable.agent_id))
+      .groupBy(reviewsTable.agent_id);
+
+    const ratingMap = new Map(
+      ratingStats.map((stat) => [
+        stat.agentId,
+        {
+          averageRating: stat.avgRating ? parseFloat(stat.avgRating) : undefined,
+          reviewCount: stat.reviewCount || 0,
+        },
+      ]),
+    );
+
     // Map database fields to match Agent interface
-    const mappedAgents = agents.map((agent) => ({
-      id: agent.id.toString(),
-      title: agent.name,
-      description: agent.description,
-      prompt: agent.prompt,
-      tools: (agent.tools as string[]) || [],
-      slug: agent.slug || undefined,
-      forkedFrom: agent.forked_from?.toString(),
-    }));
+    const mappedAgents = agents.map((agent) => {
+      const stats = ratingMap.get(agent.id);
+      return {
+        id: agent.id.toString(),
+        title: agent.name,
+        description: agent.description,
+        prompt: agent.prompt,
+        tools: (agent.tools as string[]) || [],
+        slug: agent.slug || undefined,
+        forkedFrom: agent.forked_from?.toString(),
+        averageRating: stats?.averageRating,
+        reviewCount: stats?.reviewCount || 0,
+      };
+    });
 
     return NextResponse.json(mappedAgents);
   } catch (error) {
