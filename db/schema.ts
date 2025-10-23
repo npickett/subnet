@@ -8,6 +8,9 @@ export const agentsTable = pgTable('agents', {
   tools: jsonb(),
   slug: text(),
   forked_from: integer(),
+  run_count: integer().notNull().default(0),
+  fork_count: integer().notNull().default(0),
+  share_count: integer().notNull().default(0),
 });
 
 export const reviewsTable = pgTable('reviews', {

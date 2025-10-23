@@ -24,6 +24,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const agentData = agent[0];
 
+    // Increment the run count
+    await db
+      .update(agentsTable)
+      .set({ run_count: agentData.run_count + 1 })
+      .where(eq(agentsTable.id, agentId));
+
     // Parse tools from the agent data
     const toolsArray = Array.isArray(agentData.tools) ? agentData.tools : [];
 

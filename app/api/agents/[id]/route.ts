@@ -39,6 +39,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       forkedFrom: agent.forked_from?.toString(),
       averageRating: ratingStats?.avgRating ? parseFloat(ratingStats.avgRating) : undefined,
       reviewCount: ratingStats?.reviewCount || 0,
+      runCount: agent.run_count,
+      forkCount: agent.fork_count,
+      shareCount: agent.share_count,
     };
 
     return NextResponse.json(mappedAgent);
@@ -89,6 +92,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       tools: (updatedAgent.tools as string[]) || [],
       slug: updatedAgent.slug || undefined,
       forkedFrom: updatedAgent.forked_from?.toString(),
+      runCount: updatedAgent.run_count,
+      forkCount: updatedAgent.fork_count,
+      shareCount: updatedAgent.share_count,
     };
 
     return NextResponse.json(mappedAgent);

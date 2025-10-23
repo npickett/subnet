@@ -8,6 +8,9 @@ export interface Agent {
   forkedFrom?: string;
   averageRating?: number;
   reviewCount?: number;
+  runCount?: number;
+  forkCount?: number;
+  shareCount?: number;
 }
 
 export interface Review {

@@ -44,6 +44,9 @@ export async function GET() {
         forkedFrom: agent.forked_from?.toString(),
         averageRating: stats?.averageRating,
         reviewCount: stats?.reviewCount || 0,
+        runCount: agent.run_count,
+        forkCount: agent.fork_count,
+        shareCount: agent.share_count,
       };
     });
 
@@ -66,6 +69,23 @@ export async function POST(request: NextRequest) {
 
     const slug = slugify(title, { lower: true, strict: true });
 
+    // If this is a fork, increment the fork count of the original agent
+    if (forkedFrom) {
+      const forkedFromId = parseInt(forkedFrom);
+      const [originalAgent] = await db
+        .select()
+        .from(agentsTable)
+        .where(eq(agentsTable.id, forkedFromId))
+        .limit(1);
+
+      if (originalAgent) {
+        await db
+          .update(agentsTable)
+          .set({ fork_count: originalAgent.fork_count + 1 })
+          .where(eq(agentsTable.id, forkedFromId));
+      }
+    }
+
     const [newAgent] = await db
       .insert(agentsTable)
       .values({
@@ -87,6 +107,9 @@ export async function POST(request: NextRequest) {
       tools: (newAgent.tools as string[]) || [],
       slug: newAgent.slug || undefined,
       forkedFrom: newAgent.forked_from?.toString(),
+      runCount: newAgent.run_count,
+      forkCount: newAgent.fork_count,
+      shareCount: newAgent.share_count,
     };
 
     return NextResponse.json(mappedAgent, { status: 201 });

@@ -58,6 +58,17 @@ export default function HomePage() {
                 onDelete={(agentId) => {
                   setAgents(agents.filter((a) => a.id !== agentId));
                 }}
+                onUpdate={async (agentId) => {
+                  try {
+                    const response = await fetch(`/api/agents/${agentId}`);
+                    if (response.ok) {
+                      const updatedAgent = await response.json();
+                      setAgents(agents.map((a) => (a.id === agentId ? updatedAgent : a)));
+                    }
+                  } catch (error) {
+                    console.error('Error refreshing agent:', error);
+                  }
+                }}
               />
             ))}
           </div>

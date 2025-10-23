@@ -103,6 +103,17 @@ export default function RunAgentPage() {
       }
 
       setIsRunning(false);
+
+      // Refresh agent data to update run count
+      try {
+        const statsResponse = await fetch(`/api/agents/${agent.id}`);
+        if (statsResponse.ok) {
+          const updatedAgent = await statsResponse.json();
+          setAgent(updatedAgent);
+        }
+      } catch (error) {
+        console.error('Error refreshing agent stats:', error);
+      }
     } catch (error) {
       console.error('Error running agent:', error);
       setResult('Error: Failed to run agent. Please try again.');
@@ -118,6 +129,18 @@ export default function RunAgentPage() {
     if (agent?.slug) {
       const shareUrl = `${window.location.origin}/share/${agent.slug}`;
       try {
+        // Increment share count
+        await fetch(`/api/agents/${agent.id}/share`, {
+          method: 'POST',
+        });
+
+        // Refresh agent data to update stats
+        const response = await fetch(`/api/agents/${agent.id}`);
+        if (response.ok) {
+          const updatedAgent = await response.json();
+          setAgent(updatedAgent);
+        }
+
         await navigator.clipboard.writeText(shareUrl);
         alert('Share link copied to clipboard!');
       } catch (error) {
@@ -164,6 +187,19 @@ export default function RunAgentPage() {
                     <span className="text-muted-foreground text-xs">
                       ({agent.reviewCount} {agent.reviewCount === 1 ? 'review' : 'reviews'})
                     </span>
+                  </div>
+                )}
+                {(agent.runCount !== undefined || agent.forkCount !== undefined || agent.shareCount !== undefined) && (
+                  <div className="flex gap-4 text-xs text-muted-foreground mt-2">
+                    {agent.runCount !== undefined && (
+                      <span>{agent.runCount} run{agent.runCount === 1 ? '' : 's'}</span>
+                    )}
+                    {agent.forkCount !== undefined && (
+                      <span>{agent.forkCount} fork{agent.forkCount === 1 ? '' : 's'}</span>
+                    )}
+                    {agent.shareCount !== undefined && (
+                      <span>{agent.shareCount} share{agent.shareCount === 1 ? '' : 's'}</span>
+                    )}
                   </div>
                 )}
               </div>

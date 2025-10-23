@@ -20,9 +20,10 @@ import { AVAILABLE_TOOLS } from '@/lib/types';
 interface AgentCardProps {
   agent: Agent;
   onDelete?: (agentId: string) => void;
+  onUpdate?: (agentId: string) => void;
 }
 
-export function AgentCard({ agent, onDelete }: AgentCardProps) {
+export function AgentCard({ agent, onDelete, onUpdate }: AgentCardProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -60,6 +61,14 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
     if (agent.slug) {
       const shareUrl = `${window.location.origin}/share/${agent.slug}`;
       try {
+        // Increment share count
+        await fetch(`/api/agents/${agent.id}/share`, {
+          method: 'POST',
+        });
+
+        // Refresh agent data to update stats
+        onUpdate?.(agent.id);
+
         await navigator.clipboard.writeText(shareUrl);
         alert('Share link copied to clipboard!');
       } catch (error) {
@@ -162,6 +171,19 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
             )}
           </div>
         </div>
+        {(agent.runCount !== undefined || agent.forkCount !== undefined || agent.shareCount !== undefined) && (
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            {agent.runCount !== undefined && (
+              <span>{agent.runCount} run{agent.runCount === 1 ? '' : 's'}</span>
+            )}
+            {agent.forkCount !== undefined && (
+              <span>{agent.forkCount} fork{agent.forkCount === 1 ? '' : 's'}</span>
+            )}
+            {agent.shareCount !== undefined && (
+              <span>{agent.shareCount} share{agent.shareCount === 1 ? '' : 's'}</span>
+            )}
+          </div>
+        )}
       </CardContent>
       <CardFooter>
         <Link href={`/run/${agent.id}`} className="w-full">
